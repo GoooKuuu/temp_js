@@ -1,24 +1,33 @@
 import * as THREE from 'https://threejs.org/build/three.module.js';
 
-const basicMaterial = new THREE.MeshPhongMaterial({color: 0xd13631});
+const basicMaterial = new THREE.MeshPhongMaterial({color: 0xd665544});
+const selfMaterial = new THREE.MeshPhongMaterial({color: 0xd13631});
+const oppMaterial = new THREE.MeshPhongMaterial({color: 0x3869ad});
 const targetMaterial = new THREE.MeshPhongMaterial({color: 0xff2222});
 
-function createCapsule(capsule) {
+function createCapsule(capsule, name) {
   const sphere_geom = new THREE.SphereGeometry(capsule.radius, 16, 16);
   const cylinder_geom = new THREE.CylinderGeometry(
       capsule.radius, capsule.radius, capsule.length - 2 * capsule.radius);
-
-  const sphere1 = new THREE.Mesh(sphere_geom, basicMaterial);
+  let mat;
+  if (name.includes('opp')) {
+      mat = oppMaterial;
+  } else if (name.includes('self')) {
+      mat = selfMaterial;
+  } else {
+      mat = basicMaterial;
+  }
+  const sphere1 = new THREE.Mesh(sphere_geom, mat);
   sphere1.baseMaterial = sphere1.material;
   sphere1.position.set(0, capsule.length / 2 - capsule.radius, 0);
   sphere1.castShadow = true;
 
-  const sphere2 = new THREE.Mesh(sphere_geom, basicMaterial);
+  const sphere2 = new THREE.Mesh(sphere_geom, mat);
   sphere2.baseMaterial = sphere2.material;
   sphere2.position.set(0, -capsule.length / 2 + capsule.radius, 0);
   sphere2.castShadow = true;
 
-  const cylinder = new THREE.Mesh(cylinder_geom, basicMaterial);
+  const cylinder = new THREE.Mesh(cylinder_geom, mat);
   cylinder.baseMaterial = cylinder.material;
   cylinder.castShadow = true;
 
@@ -103,7 +112,7 @@ function createScene(system) {
       if ('box' in collider) {
         child = createBox(collider.box);
       } else if ('capsule' in collider) {
-        child = createCapsule(collider.capsule);
+        child = createCapsule(collider.capsule, body.name);
       } else if ('plane' in collider) {
         child = createPlane(collider.plane);
       } else if ('sphere' in collider) {
